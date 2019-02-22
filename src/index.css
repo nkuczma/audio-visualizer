@@ -1,3 +1,10 @@
-h1 {
-    color: green;
+@import "reset.css";
+
+html {
+    height: 100%;
+}
+body {
+  height: 100%;
+  margin: 0;
+  background-color: #130F24;
 }

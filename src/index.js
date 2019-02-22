@@ -1,15 +1,14 @@
-'use strict'
 import './index.css';
-
+'use strict'
 /////
-let mock = [235, 245, 236, 212, 213, 193, 163, 133, 151, 164, 158, 142, 143, 139, 126, 134, 146, 154, 155, 146, 142, 151, 158, 154, 141, 135, 133, 130, 132, 135, 130, 130, 123, 104, 98, 92, 86, 87, 95, 96, 91, 90, 93, 102, 104, 98, 100, 103, 96, 99, 120, 125, 125, 125, 119, 107, 89, 96, 112, 115, 112, 112, 118, 114, 112, 116, 111, 94, 88, 93, 101, 102, 109, 117, 111, 96, 84, 73, 71, 61, 54, 69, 75, 72, 69, 72, 71, 65, 61, 55, 48, 48, 44, 41, 56, 59, 61, 63, 55, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
+var mock = [235, 245, 236, 212, 213, 193, 163, 133, 151, 164, 158, 142, 143, 139, 126, 134, 146, 154, 155, 146, 142, 151, 158, 154, 141, 135, 133, 130, 132, 135, 130, 130, 123, 104, 98, 92, 86, 87, 95, 96, 91, 90, 93, 102, 104, 98, 100, 103, 96, 99, 120, 125, 125, 125, 119, 107, 89, 96, 112, 115, 112, 112, 118, 114, 112, 116, 111, 94, 88, 93, 101, 102, 109, 117, 111, 96, 84, 73, 71, 61, 54, 69, 75, 72, 69, 72, 71, 65, 61, 55, 48, 48, 44, 41, 56, 59, 61, 63, 55, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 /////
+
 
 let audio, src, analyser, context;
 let canvas = document.getElementById("canvas");
 let isPlaying = false;
-let contextStated = false;
+let contextInitialized = false;
 let canPlay = false;
 let animation;
 
@@ -25,29 +24,26 @@ function initAudio() {
 }
 
 function playAudio() {
-  if(!contextStated) {
+  if(!contextInitialized) {
     context = new AudioContext();
     src = context.createMediaElementSource(audio);
     analyser = context.createAnalyser();
     src.connect(analyser);
     src.connect(context.destination);
-    contextStated = true;
+    contextInitialized = true;
   }
   audio.play(); 
   analyser.fftSize = 256;
   let bufferLength = analyser.frequencyBinCount;
   let dataArray = new Uint8Array(bufferLength);
 
-
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   let ctx = canvas.getContext("2d");
-
   let width = canvas.width;
   let height = canvas.height;
   ctx.translate(0, height);
   
-
   function drawCurve(points) {
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
@@ -68,43 +64,40 @@ function playAudio() {
     }
     ctx.stroke();
   }
+  function drawWave(points, color, waveHeight) {
+    ctx.strokeStyle = color;
+    drawCurve(points);
+    ctx.lineTo(0 , -height/2 + waveHeight);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
 
   function renderFrame() {
     animation = requestAnimationFrame(renderFrame);
     analyser.getByteFrequencyData(dataArray);
     ctx.clearRect(0, -canvas.height, canvas.width, canvas.height*2);
-    let points = [];
-    let points2 = [];
+    let points = {};
+    let wavesNumber = 3;
+    let heightDifference = 50;
     let X = 0;
     let t = 10; 
-    for (let i = 0; i < bufferLength; i++) {
-      // let Y = -mock[i] - height/2;
-      // let Y2 = -mock[i] - height/2 +50;
-      let Y = -dataArray[i]  - height/2;
-      let Y2 = -dataArray[i] - height/2 +50;
-      let p = { x: X, y: Y };
-      let p2 = { x: X, y: Y2 };
-      points.push(p);
-      points2.push(p2);
-      X = X + t;
+    for (let i = 0; i < wavesNumber; i++) {
+      points[i] = [];
+      for (let j = 0; j < bufferLength; j++) {
+        let Y = -dataArray[j] - height/2 + heightDifference*i;
+        let p = { x: X, y: Y };
+        points[i].push(p);
+        X = X + t;
+      }
+      X = 0;
     }
-    // console.log(lines);
     ctx.setLineDash([0]);
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "blue";
-    drawCurve(points);
-    ctx.lineTo(0 , -height/2 + 1);
-
-    ctx.closePath();
-    ctx.fillStyle = "blue";
-    ctx.fill();
-
-    drawCurve(points2);
-    ctx.lineTo(0 , -height/2 + 51);
-
-    ctx.closePath();
-    ctx.fillStyle = "grey";
-    ctx.fill();
+    let colors = ["#592169", "#972F9C", "#DB479A"];
+    for (let i in points) {
+      drawWave(points[i], colors[i], i*heightDifference + 1);
+    }
   }
   renderFrame();
 };
