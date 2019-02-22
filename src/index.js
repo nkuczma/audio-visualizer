@@ -6,22 +6,38 @@ var mock = [235, 245, 236, 212, 213, 193, 163, 133, 151, 164, 158, 142, 143, 139
 
 
 let audio, src, analyser, context;
+let audioUrl = "https://lab.ma77os.com/audio-cloud/music/paradise_circus.mp3";
 let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
 let isPlaying = false;
 let contextInitialized = false;
 let canPlay = false;
 let animation;
+let controlsHeight = document.getElementById("controls").offsetHeight;
+let colors = ["#592169", "#972F9C", "#DB479A"];
+let wavesNumber = 3;
+let heightDifference = 50;
 
 function audioLoaded() {
   canPlay = true;
-}
+  document.getElementById('title').innerHTML = audioUrl.split('/').pop().split('.')[0];
+};
 
 function initAudio() {
   audio = new Audio();
   audio.crossOrigin = "anonymous";
-  audio.src = "https://lab.ma77os.com/audio-cloud/music/paradise_circus.mp3";
+  audio.src = audioUrl;
   audio.addEventListener( 'canplaythrough', audioLoaded, false );
-}
+  audio.loop = true; 
+};
+
+function resizeCanvas() {
+  if(canvas.width !== innerWidth || canvas.height !== innerHeight - controlsHeight){
+    canvas.width = innerWidth;
+    canvas.height = innerHeight - controlsHeight;
+    ctx.translate(0, canvas.height);
+  }
+};
 
 function playAudio() {
   if(!contextInitialized) {
@@ -31,18 +47,15 @@ function playAudio() {
     src.connect(analyser);
     src.connect(context.destination);
     contextInitialized = true;
-  }
-  audio.play(); 
+  } 
   analyser.fftSize = 256;
   let bufferLength = analyser.frequencyBinCount;
   let dataArray = new Uint8Array(bufferLength);
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  let ctx = canvas.getContext("2d");
-  let width = canvas.width;
-  let height = canvas.height;
-  ctx.translate(0, height);
+  
+  ctx.canvas.width = window.innerWidth;
+  ctx.canvas.height = window.innerHeight - controlsHeight;
+  ctx.translate(0, canvas.height);
   
   function drawCurve(points) {
     ctx.beginPath();
@@ -64,10 +77,12 @@ function playAudio() {
     }
     ctx.stroke();
   }
-  function drawWave(points, color, waveHeight) {
+  function drawWave(points, color, waveHeight, allwavesHeight) {
     ctx.strokeStyle = color;
     drawCurve(points);
-    ctx.lineTo(0 , -height/2 + waveHeight);
+    ctx.lineTo(canvas.width, -canvas.height/2 + waveHeight);
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(0, canvas.height);
     ctx.closePath();
     ctx.fillStyle = color;
     ctx.fill();
@@ -75,17 +90,17 @@ function playAudio() {
 
   function renderFrame() {
     animation = requestAnimationFrame(renderFrame);
+    resizeCanvas();
     analyser.getByteFrequencyData(dataArray);
     ctx.clearRect(0, -canvas.height, canvas.width, canvas.height*2);
     let points = {};
-    let wavesNumber = 3;
-    let heightDifference = 50;
     let X = 0;
-    let t = 10; 
+    let t = canvas.width/(analyser.fftSize/2); 
     for (let i = 0; i < wavesNumber; i++) {
       points[i] = [];
       for (let j = 0; j < bufferLength; j++) {
-        let Y = -dataArray[j] - height/2 + heightDifference*i;
+        let Y = -dataArray[j] - canvas.height/2 + heightDifference*i;
+        // let Y = -mock[j] - height/2 + heightDifference*i;
         let p = { x: X, y: Y };
         points[i].push(p);
         X = X + t;
@@ -94,24 +109,56 @@ function playAudio() {
     }
     ctx.setLineDash([0]);
     ctx.lineWidth = 1;
-    let colors = ["#592169", "#972F9C", "#DB479A"];
+    let allWavesHeight = wavesNumber * heightDifference;
     for (let i in points) {
-      drawWave(points[i], colors[i], i*heightDifference + 1);
+      drawWave(points[i], colors[i], i*heightDifference + 1, allWavesHeight);
     }
   }
   renderFrame();
+  audio.play();
 };
 
 function pauseAudio() {
   analyser.disconnect();
   audio.pause();
-  cancelAnimationFrame(animation);
-}
+  console.log(audio);
+  // cancelAnimationFrame(animation);
+};
 
-initAudio();
+
 document.getElementById('play-audio').onclick = function() { 
   if (!isPlaying && canPlay) { playAudio(); isPlaying = true; } 
 };
 document.getElementById('pause-audio').onclick = function() { 
   if (isPlaying) { pauseAudio(); isPlaying = false; }
 };
+window.onload = function() {
+  initAudio();
+  resizeCanvas();
+  
+  for (let i = 0; i < wavesNumber; i++) {
+    ctx.beginPath();
+    ctx.strokeStyle = colors[i];
+    ctx.lineTo(0, -canvas.height/2 + i*heightDifference);
+    ctx.lineTo(canvas.width, -canvas.height/2 + i*heightDifference);
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(0, canvas.height);
+    ctx.closePath();
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+  }
+  document.getElementById('title').innerHTML = "Loading song...";
+};
+
+let file = document.getElementById("audio-file");
+file.onchange = function() {
+  canPlay = false;
+  document.getElementById('title').innerHTML = "Loading song...";
+  var files = this.files;
+  audio.src = URL.createObjectURL(files[0]);
+  audioUrl = files[0].name;
+  audio.load();
+  audio.addEventListener( 'canplaythrough', audioLoaded, false );
+  playAudio();
+  isPlaying = true;
+}
