@@ -1,26 +1,21 @@
 import './index.css';
 'use strict'
-/////
-var mock = [235, 245, 236, 212, 213, 193, 163, 133, 151, 164, 158, 142, 143, 139, 126, 134, 146, 154, 155, 146, 142, 151, 158, 154, 141, 135, 133, 130, 132, 135, 130, 130, 123, 104, 98, 92, 86, 87, 95, 96, 91, 90, 93, 102, 104, 98, 100, 103, 96, 99, 120, 125, 125, 125, 119, 107, 89, 96, 112, 115, 112, 112, 118, 114, 112, 116, 111, 94, 88, 93, 101, 102, 109, 117, 111, 96, 84, 73, 71, 61, 54, 69, 75, 72, 69, 72, 71, 65, 61, 55, 48, 48, 44, 41, 56, 59, 61, 63, 55, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-/////
 
-
-let audio, src, analyser, context;
+let audio, src, analyser, context, animation;
 let audioUrl = "https://lab.ma77os.com/audio-cloud/music/paradise_circus.mp3";
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
-let isPlaying = false;
-let contextInitialized = false;
-let canPlay = false;
-let animation;
 let controlsHeight = document.getElementById("controls").offsetHeight;
 let colors = ["#592169", "#972F9C", "#DB479A"];
 let wavesNumber = 3;
 let heightDifference = 50;
+let isPlaying = false;
+let contextInitialized = false;
+let canPlay = false;
 
 function audioLoaded() {
   canPlay = true;
-  document.getElementById('title').innerHTML = audioUrl.split('/').pop().split('.')[0];
+  document.getElementById('title').innerHTML = audioUrl.split('/').pop();
 };
 
 function initAudio() {
@@ -52,7 +47,6 @@ function playAudio() {
   let bufferLength = analyser.frequencyBinCount;
   let dataArray = new Uint8Array(bufferLength);
 
-  
   ctx.canvas.width = window.innerWidth;
   ctx.canvas.height = window.innerHeight - controlsHeight;
   ctx.translate(0, canvas.height);
@@ -77,6 +71,7 @@ function playAudio() {
     }
     ctx.stroke();
   }
+
   function drawWave(points, color, waveHeight, allwavesHeight) {
     ctx.strokeStyle = color;
     drawCurve(points);
@@ -100,7 +95,6 @@ function playAudio() {
       points[i] = [];
       for (let j = 0; j < bufferLength; j++) {
         let Y = -dataArray[j] - canvas.height/2 + heightDifference*i;
-        // let Y = -mock[j] - height/2 + heightDifference*i;
         let p = { x: X, y: Y };
         points[i].push(p);
         X = X + t;
@@ -121,8 +115,7 @@ function playAudio() {
 function pauseAudio() {
   analyser.disconnect();
   audio.pause();
-  console.log(audio);
-  // cancelAnimationFrame(animation);
+  cancelAnimationFrame(animation);
 };
 
 
@@ -132,10 +125,10 @@ document.getElementById('play-audio').onclick = function() {
 document.getElementById('pause-audio').onclick = function() { 
   if (isPlaying) { pauseAudio(); isPlaying = false; }
 };
+
 window.onload = function() {
   initAudio();
   resizeCanvas();
-  
   for (let i = 0; i < wavesNumber; i++) {
     ctx.beginPath();
     ctx.strokeStyle = colors[i];
@@ -161,4 +154,4 @@ file.onchange = function() {
   audio.addEventListener( 'canplaythrough', audioLoaded, false );
   playAudio();
   isPlaying = true;
-}
+};

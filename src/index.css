@@ -25,3 +25,32 @@ canvas {
   left: 5%;
   text-shadow: 1px 1px 4px #FFFFFF;
 }
+
+input[type="file"] {
+  display: none;
+}
+
+.btn {
+  margin: 20px;
+  background-color: rgba(0,0,0,.2);
+  color: white;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1em;
+  font-weight: normal;
+  border-radius: 20px;
+  padding: 10px 15px;
+  border: 2px solid #972F9C; 
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  box-shadow: 3px 3px 8px #972F9C66;
+}
+
+.btn:hover, .btn:focus {
+  background-color: #972F9C;
+}
+
+#input-file-button {
+  padding: 12px 15px;
+  display: inline-block;
+}
