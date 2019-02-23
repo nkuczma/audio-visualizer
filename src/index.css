@@ -21,7 +21,7 @@ canvas {
 #title {
   font-size: 2.6rem;
   position: absolute;
-  bottom: 12%;
+  bottom: 9%;
   left: 5%;
   text-shadow: 1px 1px 4px #FFFFFF;
 }
@@ -48,6 +48,12 @@ input[type="file"] {
 
 .btn:hover, .btn:focus {
   background-color: #972F9C;
+  outline: none;
+}
+.btn:disabled {
+  background-color: #FFFFFF33;
+  border: 2px solid #FFFFFF33;
+  cursor: auto;
 }
 
 #input-file-button {
