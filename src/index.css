@@ -31,19 +31,19 @@ input[type="file"] {
 }
 
 .btn {
-  margin: 20px;
-  background-color: rgba(0,0,0,.2);
+  margin: 20px 10px;
+  background-color: rgba(0,0,0,0);
   color: white;
   font-family: 'Quicksand', sans-serif;
   font-size: 1em;
   font-weight: normal;
-  border-radius: 20px;
   padding: 10px 15px;
-  border: 2px solid #972F9C; 
+  border: 2px solid #972F9CBB;
+  border-radius: 30px;
   -webkit-transition-duration: 0.4s;
   transition-duration: 0.4s;
   cursor: pointer;
-  box-shadow: 3px 3px 8px #972F9C66;
+  box-shadow: 2px 2px 4px #972F9C66;
 }
 
 .btn:hover, .btn:focus {
