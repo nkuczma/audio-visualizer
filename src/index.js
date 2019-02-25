@@ -42,14 +42,18 @@ import './index.css';
   pauseAudioNode.disabled = true; 
   
   audioFileNode.addEventListener('change', function() {
-    titleEl.innerHTML = 'Loading song...';
-    let files = this.files;
-    audio.src = URL.createObjectURL(files[0]);
-    audioUrl = files[0].name;
-    audio.load();
-    audio.addEventListener( 'canplaythrough', audioLoaded, false );
-    playAudio();
-    isPlaying = true;
+    if(this.files.length !== 0) {
+      titleEl.innerHTML = 'Loading song...';
+      pauseAudioNode.classList.remove('active');
+      playAudioNode.classList.remove('active');
+      let files = this.files;
+      audio.src = URL.createObjectURL(files[0]);
+      audioUrl = files[0].name;
+      audio.load();
+      audio.addEventListener( 'canplaythrough', audioLoaded, false );
+      playAudio();
+      isPlaying = true;
+    }
   }, false);
     
   playAudioNode.addEventListener('click', function() { 
@@ -109,6 +113,8 @@ import './index.css';
   }
 
   function playAudio() {
+    playAudioNode.classList.add('active');
+    pauseAudioNode.classList.remove('active');
     if(!contextInitialized) {
       let context = new AudioContext();
       let src = context.createMediaElementSource(audio);
@@ -151,6 +157,8 @@ import './index.css';
   }
 
   function pauseAudio() {
+    pauseAudioNode.classList.add('active');
+    playAudioNode.classList.remove('active');
     audio.pause();
     cancelAnimationFrame(animation);
   }
