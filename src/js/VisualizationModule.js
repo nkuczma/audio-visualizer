@@ -1,8 +1,5 @@
-function VisualizationModule(canvasId) {
-	const colors = ['#592169', '#972F9C', '#DB479A'];
-	const wavesNumber = 3;
-	let heightDifference = 50;
-
+function VisualizationModule(canvasId, colors, wavesNumber, heightDifference) {
+  
 	let canvas = document.getElementById(canvasId);
   let ctx = canvas.getContext('2d');
   

@@ -1,4 +1,5 @@
 function AudioModule(audioUrl) {
+  
   let audio, analyser;
   let contextInitialized = false;
 
@@ -34,8 +35,8 @@ function AudioModule(audioUrl) {
   }
 
   function loadAudio(file, onLoadFunction = function() {}) {
-    audio.src = URL.createObjectURL(file[0]);
-    audioUrl = file[0].name;
+    audio.src = URL.createObjectURL(file);
+    audioUrl = file.name;
     audio.load();
     audio.addEventListener( 'canplaythrough', onLoadFunction(audioUrl), false );
   }
