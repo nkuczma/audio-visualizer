@@ -6,6 +6,23 @@ function VisualizationModule(canvasId) {
 	let canvas = document.getElementById(canvasId);
   let ctx = canvas.getContext('2d');
   
+  function parsePoints(points) {
+    let newPoints = {};
+    let X = 0;
+    let t = canvas.width/points.length + 1; 
+    for (let i = 0; i < wavesNumber; i++) {
+      newPoints[i] = [];
+      for (let j = 0; j < points.length; j++) {
+        let Y = -points[j] - canvas.height/2 + heightDifference*i;
+        let p = { x: X, y: Y };
+        newPoints[i].push(p);
+        X = X + t;
+      }
+      X = 0;
+    }
+    return newPoints;
+  }
+  
   function drawCurve(points) {
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
@@ -25,23 +42,6 @@ function VisualizationModule(canvasId) {
       ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
     }
     ctx.stroke();
-  }
-
-  function parsePoints(points) {
-    let newPoints = {};
-    let X = 0;
-    let t = canvas.width/points.length + 1; 
-    for (let i = 0; i < wavesNumber; i++) {
-      newPoints[i] = [];
-      for (let j = 0; j < points.length; j++) {
-        let Y = -points[j] - canvas.height/2 + heightDifference*i;
-        let p = { x: X, y: Y };
-        newPoints[i].push(p);
-        X = X + t;
-      }
-      X = 0;
-    }
-    return newPoints;
   }
 
   function drawWaves(points) {
@@ -75,7 +75,7 @@ function VisualizationModule(canvasId) {
     }
   }
 
-  return { drawWaves, resizeCanvas, initializeView }
+  return { drawWaves, initializeView }
 }
 
 export default VisualizationModule;

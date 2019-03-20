@@ -1,11 +1,13 @@
 function AudioModule(audioUrl) {
-  let audio, analyser, animation;
+  let audio, analyser;
   let contextInitialized = false;
 
-  audio = new Audio();
-  audio.crossOrigin = 'anonymous';
-  audio.src = audioUrl;
-  audio.loop = true; 
+  function initializeAudio() {
+    audio = new Audio();
+    audio.crossOrigin = 'anonymous';
+    audio.src = audioUrl;
+    audio.loop = true; 
+  }
 
   function playAudio() {
     if(!contextInitialized) {
@@ -31,11 +33,14 @@ function AudioModule(audioUrl) {
     audio.pause();
   }
 
-  function loadAudio() {
-      ///todo
+  function loadAudio(file, onLoadFunction = function() {}) {
+    audio.src = URL.createObjectURL(file[0]);
+    audioUrl = file[0].name;
+    audio.load();
+    audio.addEventListener( 'canplaythrough', onLoadFunction(audioUrl), false );
   }
 
-  return { playAudio, pauseAudio, loadAudio, analyseAudio };
+  return { initializeAudio, playAudio, pauseAudio, loadAudio, analyseAudio };
 
 }
 
